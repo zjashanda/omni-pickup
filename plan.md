@@ -87,6 +87,6 @@
 - [x] 验证源码、启动器、EXE 帮助、Skill 校验和打包 spec 路径。
 
 ## Git 云端发布追加任务
-- [ ] 明确源码、启动器和打包命令必须使用随 Skill 提供的 `.venv`，只有 EXE 可脱离虚拟环境。
-- [ ] 使用 `skill-git` 将当前目录（包含 `.venv`）发布到同名 GitHub 仓库。
-- [ ] 验证远端仓库、提交和推送结果。
+- [x] 明确源码、启动器和打包命令必须使用随 Skill 提供的 `.venv`，只有 EXE 可脱离虚拟环境。
+- [x] 使用 `skill-git` 将当前目录（包含 `.venv`）发布到同名 GitHub 仓库。
+- [x] 验证远端仓库、提交和推送结果：`main` 为 `ddc6a10c5a688764167aa8bab799a815cfd9913b`，已确认跟踪 `.venv` 的 Python、pip 与 PyAudio 文件。
