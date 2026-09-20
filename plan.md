@@ -154,4 +154,4 @@
 - [x] 固定参数为 WASAPI、`麦克风 (UAC Audio)`、16 kHz、8 通道、16 bit；未额外设置延迟，使用默认 `0` 秒。
 - [x] 增加 `chcp 65001` 和脚本目录切换，保证中文设备名按 UTF-8 传递；保留追加参数透传。
 - [x] 使用 `cmd /c call dist\\OmniPickup_wait_listenai.bat --validate-only` 验证中文设备名和 EXE 调用，退出码为 `0`。
-- [ ] 同步本次 BAT 修改到 GitHub。
+- [x] 同步本次 BAT 修改到 GitHub。
