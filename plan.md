@@ -134,3 +134,10 @@
 - `dist\\OmniPickup.exe --version` 输出 `V1.0.1`。
 - EXE 等待指定声卡并完成 WASAPI 格式校验通过。
 - 已重新构建 EXE，当前文件大小为 6,527,812 字节。
+
+## 当前用户请求：刷机流程 BAT 入口
+- [x] 新增 `dist\\OmniPickup_wait_listenai.bat`，固定等待 `麦克风 (ListenAI Audio)`、延迟 5 秒、WASAPI、16 kHz、8 通道、16 bit。
+- [x] BAT 从 `dist` 自动定位 Skill 根目录、`.venv` 和 `src\\OmniPickup.py`，并透传追加参数。
+- [x] 更新 `SKILL.md`，记录直接调用方式和持续录音行为。
+- [x] 使用 `cmd /c call dist\\OmniPickup_wait_listenai.bat --validate-only` 验证 BAT；检测到当前声卡后等待 5 秒并校验成功。
+- [x] 已同步 BAT、文档和计划到 GitHub。

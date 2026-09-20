@@ -2200,6 +2200,7 @@
 - `build/OmniPickup/warn-OmniPickup.txt`
 - `build/OmniPickup/xref-OmniPickup.html`
 - `dist/OmniPickup.exe`
+- `dist/OmniPickup_wait_listenai.bat`
 - `launchers/OmniPickup.cmd`
 - `launchers/OmniPickup.ps1`
 - `packaging/OmniPickup.spec`
@@ -2230,6 +2231,7 @@ Then restart Codex.
 
 - `src\OmniPickup.py`：源码入口。
 - `launchers\OmniPickup.cmd`、`launchers\OmniPickup.ps1`：Windows 启动入口；启动器会自动回到 Skill 根目录解析依赖。
+- `dist\OmniPickup_wait_listenai.bat`：可直接用于刷机流程的固定参数批处理入口，等待 `麦克风 (ListenAI Audio)` 出现后延迟 5 秒开始持续录音。
 - `.venv\`：当前目录专用 Python 3.10 虚拟环境，不使用系统 Python 包。
 - `packaging\OmniPickup.spec`：PyInstaller 配置，引用 `packaging\record_asio_pcm.ico` 图标和 `src\OmniPickup.py` 源码。
 - `packaging\record_asio_pcm.ico`：EXE 图标资源。
@@ -2375,6 +2377,14 @@ Then restart Codex.
 ```
 
 未指定 `--device-name` 时，出现的目标声卡也会作为实际录音设备；如果同时指定了 `--device-name`，等待目标和实际录音目标可以分别设置。
+
+刷机流程可以直接调用固定参数 BAT：
+
+```bat
+dist\OmniPickup_wait_listenai.bat
+```
+
+该 BAT 默认持续录音；可以在命令后追加原有参数，例如 `--duration 60 --output recordings\one_minute.pcm`。
 
 ### 使用独立 EXE
 
