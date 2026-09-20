@@ -90,3 +90,27 @@
 - [x] 明确源码、启动器和打包命令必须使用随 Skill 提供的 `.venv`，只有 EXE 可脱离虚拟环境。
 - [x] 使用 `skill-git` 将当前目录（包含 `.venv`）发布到同名 GitHub 仓库。
 - [x] 验证远端仓库、提交和推送结果：远端 `main` 与本地发布缓存一致，已确认跟踪 `.venv` 的 Python、pip 与 PyAudio 文件。
+
+## 当前用户请求：阅读当前 Skill
+- [x] 读取根目录 `SKILL.md`，确认 front matter、用途、目录约定、运行环境矩阵、常用命令、参数、PCM 约定、Host API 限制、虚拟环境、打包、故障排查和退出码。
+- [x] 确认当前 Skill 的入口为 `src\\OmniPickup.py`、`launchers\\OmniPickup.cmd`、`launchers\\OmniPickup.ps1` 和 `dist\\OmniPickup.exe`；旧版 ASIO 源码不作为当前入口。
+- [x] 确认 Skill 关键运行约束：源码/启动器/打包必须使用当前目录 `.venv`；独立 EXE 不依赖 `.venv`，但仍依赖 Windows 音频驱动和系统运行库。
+- [x] 向用户反馈阅读结果。
+- [ ] 若用户后续要求修改或验证 Skill，再按具体范围检查对应源码、启动器或打包产物。
+
+### 本轮阅读摘要
+- Skill 名称：`omni-pickup`；面向 Windows DirectSound、WASAPI、WDM-KS 和可选 ASIO 输入设备。
+- 默认 Host API：WASAPI；默认设备名为空时，选择该 Host API 下索引最小的可录音输入设备。
+- 输出：交错、无文件头的原始 PCM；解析或播放必须另行提供采样率、通道数、位深和字节序。
+- 主要操作：`--list-devices`、`--validate-only`、固定时长录音、持续录音、按索引/名称选择设备以及 PyInstaller 重打包。
+- 重要限制：当前标准 PyAudio wheel 未提供 ASIO；WASAPI loopback 不在当前 Skill 覆盖范围；设备全局索引可能因驱动或插拔变化。
+
+## 当前用户请求：V1.0.1 声卡出现后自动录音
+- [x] 明确需求：新增按声卡名称等待输入设备出现，并支持出现后的可配置录音延迟；未启用等待参数时保持原有行为。
+- [x] 在 `src\\OmniPickup.py` 增加 `--wait-device-name` 和 `--device-appear-delay`，默认延迟为 `0` 秒。
+- [x] 等待流程按选定 Host API 和输入通道筛选设备，设备出现后再执行原有校验和录音；等待期间支持 `Ctrl+C`。
+- [x] 增加程序版本参数并设置为 `V1.0.1`。
+- [x] 更新中文 `SKILL.md`，补充等待录音用法、参数说明和版本信息。
+- [ ] 完成源码/参数/现有设备校验验证。
+- [ ] 使用 `.venv` 重新打包 `dist\\OmniPickup.exe` 并验证 EXE。
+- [ ] 同步提交并推送到云端 Git 仓库。

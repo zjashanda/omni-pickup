@@ -28,8 +28,10 @@ DEFAULT_CHANNELS = 8
 DEFAULT_BIT_DEPTH = 16
 DEFAULT_FRAMES_PER_BUFFER = 4800
 DEFAULT_OUTPUT_DIR = "."
+VERSION = "V1.0.1"
 DEVICE_RECHECK_INTERVAL_SECONDS = 1.0
 STATUS_UPDATE_INTERVAL_SECONDS = 1.0
+DEVICE_WAIT_POLL_INTERVAL_SECONDS = 1.0
 
 BIT_DEPTH_FORMAT_NAMES = {
     8: "paUInt8",
@@ -131,6 +133,12 @@ def build_parser() -> argparse.ArgumentParser:
         ),
     )
     parser.add_argument(
+        "--version",
+        action="version",
+        version=VERSION,
+        help="Show the program version and exit.",
+    )
+    parser.add_argument(
         "--host-api",
         "--api",
         dest="host_api",
@@ -146,6 +154,19 @@ def build_parser() -> argparse.ArgumentParser:
         "--device-name",
         default=DEFAULT_DEVICE_NAME,
         help="Device name or substring. Default: first matching input device.",
+    )
+    parser.add_argument(
+        "--wait-device-name",
+        help=(
+            "Wait until this input device name or substring appears, then record. "
+            "Can be combined with --device-name."
+        ),
+    )
+    parser.add_argument(
+        "--device-appear-delay",
+        type=float,
+        default=0.0,
+        help="Seconds to wait after the target device appears. Default: 0.",
     )
     parser.add_argument(
         "--device-index",
@@ -216,6 +237,8 @@ def sanitize_args(args: argparse.Namespace, parser: argparse.ArgumentParser) -> 
         parser.error("--channels must be > 0")
     if args.frames_per_buffer <= 0:
         parser.error("--frames-per-buffer must be > 0")
+    if not math.isfinite(args.device_appear_delay) or args.device_appear_delay < 0:
+        parser.error("--device-appear-delay must be a finite number >= 0")
     if args.duration is not None:
         if not math.isfinite(args.duration) or args.duration < 0:
             parser.error("--duration must be a finite number >= 0")
@@ -368,6 +391,42 @@ def device_available(pa, selection: DeviceSelection) -> bool:
         if normalize_name(str(info["name"])) == target_name:
             return True
     return False
+
+
+def wait_for_device(
+    pa,
+    requested_host_api: str,
+    device_name: str,
+) -> DeviceSelection:
+    """Wait until a matching input device is visible; Ctrl+C remains cancellable."""
+
+    print(
+        f"Waiting for input device {device_name!r} to appear "
+        f"under {HOST_API_LABELS[canonical_host_api(requested_host_api)]}...",
+        flush=True,
+    )
+    last_error = ""
+    while True:
+        try:
+            selection = select_device(
+                pa=pa,
+                requested_host_api=requested_host_api,
+                device_name=device_name,
+                device_index=None,
+            )
+        except RecorderError as exc:
+            message = str(exc)
+            if message != last_error:
+                print(f"Still waiting: {message}", flush=True)
+                last_error = message
+            time.sleep(DEVICE_WAIT_POLL_INTERVAL_SECONDS)
+            continue
+        print(
+            f"Device appeared: index={selection.index}, name={selection.name!r}, "
+            f"host_api={selection.host_api_name}.",
+            flush=True,
+        )
+        return selection
 
 
 def build_output_path(output: Optional[str], output_dir: str, started_at: datetime) -> Path:
@@ -602,6 +661,20 @@ def run(args: argparse.Namespace) -> int:
             return 0
 
         requested_host_api = resolve_host_api(args)
+        if args.wait_device_name:
+            wait_for_device(
+                pa=pa,
+                requested_host_api=requested_host_api,
+                device_name=args.wait_device_name,
+            )
+            if args.device_appear_delay > 0:
+                print(
+                    f"Waiting {args.device_appear_delay:.3f} seconds before recording...",
+                    flush=True,
+                )
+                time.sleep(args.device_appear_delay)
+            if not args.device_name:
+                args.device_name = args.wait_device_name
         audio_format = get_audio_format(args.bit_depth)
         selection = select_device(
             pa=pa,

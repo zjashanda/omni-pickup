@@ -5,6 +5,8 @@ description: "Windows 多 Host API 音频输入采集 Skill。用于使用当前
 
 # OmniPickup 音频采集
 
+当前版本：`V1.0.1`
+
 ## 用途
 
 使用 `src\OmniPickup.py` 或 `dist\OmniPickup.exe` 采集 Windows 音频输入设备，输出交错的原始 PCM 文件。脚本支持按 Host API、设备索引或设备名称选择输入端点，并可自定义采样率、通道数、位深、缓冲区和录音时长。
@@ -144,6 +146,21 @@ description: "Windows 多 Host API 音频输入采集 Skill。用于使用当前
   --validate-only
 ```
 
+### 等待声卡出现后录音
+
+使用 `--wait-device-name` 时，脚本会持续检测指定名称（支持标准化后的精确匹配或子串匹配）的输入设备。设备出现后先等待 `--device-appear-delay` 秒，再执行原有设备校验和录音流程；延迟默认是 `0` 秒。等待期间可以按 `Ctrl+C` 安全退出。
+
+```powershell
+.\.venv\Scripts\python.exe .\src\OmniPickup.py `
+  --host-api wasapi `
+  --wait-device-name "ListenAI Audio" `
+  --device-appear-delay 5 `
+  --sample-rate 16000 --channels 8 --bit-depth 16 `
+  --duration 60 -o .\recordings\when_ready.pcm
+```
+
+未指定 `--device-name` 时，出现的目标声卡也会作为实际录音设备；如果同时指定了 `--device-name`，等待目标和实际录音目标可以分别设置。
+
 ### 使用独立 EXE
 
 打包后的 EXE 不需要 `.venv` Python 启动：
@@ -162,6 +179,8 @@ EXE 仍依赖 Windows 音频驱动和系统运行库，但不依赖当前目录�
 - `--host-api` / `--api`：选择 `asio`、`directsound`、`wasapi` 或 `wdm-ks`；默认 `wasapi`。
 - `--device-index`：PortAudio 全局设备索引，来自 `--list-devices` 的 `--数字`。
 - `--device-name`：设备名称或子串；默认空值，选择所选 Host API 下最小索引输入设备。
+- `--wait-device-name`：等待出现的输入设备名称或子串；指定后设备未出现时持续等待。
+- `--device-appear-delay`：检测到等待目标后、开始校验和录音前的延迟秒数，默认 `0`。
 - `--sample-rate`：采样率，单位 Hz，例如 `16000`、`44100`、`48000`。
 - `--channels`：输入通道数，例如 `1`、`2`、`8`。
 - `--bit-depth`：`8`、`16`、`24` 或 `32` 位；必须由目标设备和 PortAudio 支持。
