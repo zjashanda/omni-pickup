@@ -1,26 +1,23 @@
 @echo off
 setlocal
 
-set "SKILL_ROOT=%~dp0.."
-set "OMNI_PYTHON=%SKILL_ROOT%\.venv\Scripts\python.exe"
-set "OMNI_SCRIPT=%SKILL_ROOT%\src\OmniPickup.py"
+rem Use UTF-8 so the Chinese device name is passed to OmniPickup correctly.
+chcp 65001 >nul
+pushd "%~dp0"
 
-if not exist "%OMNI_PYTHON%" (
-    echo ERROR: .venv is required. Run this BAT from the published Skill directory. 1>&2
-    exit /b 2
-)
-if not exist "%OMNI_SCRIPT%" (
-    echo ERROR: OmniPickup.py was not found under the Skill directory. 1>&2
+if not exist "%~dp0OmniPickup.exe" (
+    echo ERROR: OmniPickup.exe was not found in this directory. 1>&2
+    popd
     exit /b 2
 )
 
-rem Wait for the ListenAI microphone, delay 5 seconds, then record continuously.
-"%OMNI_PYTHON%" -X utf8 "%OMNI_SCRIPT%" ^
-  --host-api wasapi ^
+rem Wait for UAC Audio and record with the requested format.
+"%~dp0OmniPickup.exe" --host-api wasapi ^
   --wait-device-name "麦克风 (UAC Audio)" ^
-  --device-appear-delay 0 ^
   --sample-rate 16000 ^
   --channels 8 ^
   --bit-depth 16 ^
   %*
-exit /b %ERRORLEVEL%
+set "EXIT_CODE=%ERRORLEVEL%"
+popd
+exit /b %EXIT_CODE%

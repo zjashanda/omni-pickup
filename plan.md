@@ -148,3 +148,10 @@
 - [x] 当前机器已枚举到 `麦克风 (UAC Audio)`：WASAPI、8 输入通道、16 kHz。
 - [x] 源码验证通过；EXE 首轮刷新后检测到 UAC Audio 并完成格式校验。
 - [x] 重新打包并同步修复到 GitHub。
+
+## 当前用户请求：将 UAC Audio EXE 命令写入 BAT
+- [x] 将 `dist\\OmniPickup_wait_listenai.bat` 改为直接调用同目录 `OmniPickup.exe`。
+- [x] 固定参数为 WASAPI、`麦克风 (UAC Audio)`、16 kHz、8 通道、16 bit；未额外设置延迟，使用默认 `0` 秒。
+- [x] 增加 `chcp 65001` 和脚本目录切换，保证中文设备名按 UTF-8 传递；保留追加参数透传。
+- [x] 使用 `cmd /c call dist\\OmniPickup_wait_listenai.bat --validate-only` 验证中文设备名和 EXE 调用，退出码为 `0`。
+- [ ] 同步本次 BAT 修改到 GitHub。
