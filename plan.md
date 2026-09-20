@@ -111,6 +111,15 @@
 - [x] 等待流程按选定 Host API 和输入通道筛选设备，设备出现后再执行原有校验和录音；等待期间支持 `Ctrl+C`。
 - [x] 增加程序版本参数并设置为 `V1.0.1`。
 - [x] 更新中文 `SKILL.md`，补充等待录音用法、参数说明和版本信息。
-- [ ] 完成源码/参数/现有设备校验验证。
-- [ ] 使用 `.venv` 重新打包 `dist\\OmniPickup.exe` 并验证 EXE。
-- [ ] 同步提交并推送到云端 Git 仓库。
+- [x] 完成源码语法、帮助、版本、参数错误、等待校验和短时真实录音 smoke 验证；短时 PCM 为 25,600 字节，随后清理。
+- [x] 使用 `.venv` 重新打包 `dist\\OmniPickup.exe` 并验证 EXE 帮助、版本、新参数和 WASAPI 格式校验。
+- [x] 使用 `skill-git` 同步到 GitHub `zjashanda/omni-pickup`：远端未新建，变更已提交并推送。
+
+### V1.0.1 验证记录
+- 源码 `py_compile` 通过。
+- `src\\OmniPickup.py --help` 显示 `--wait-device-name`、`--device-appear-delay` 和 `--version`。
+- `--version` 输出 `V1.0.1`。
+- 负延迟参数以退出码 `2` 拒绝。
+- 现有设备 `麦克风 (ListenAI Audio)` 的等待模式、0.1 秒延迟校验通过。
+- 等待模式实际录音 0.1 秒成功，输出 25,600 字节（16 kHz × 8 通道 × 16 bit × 0.1 秒）。
+- `dist\\OmniPickup.exe` 构建成功，版本输出 `V1.0.1`；当前文件大小 6,530,276 字节。
