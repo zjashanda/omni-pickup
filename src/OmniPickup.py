@@ -394,39 +394,46 @@ def device_available(pa, selection: DeviceSelection) -> bool:
 
 
 def wait_for_device(
-    pa,
     requested_host_api: str,
     device_name: str,
 ) -> DeviceSelection:
     """Wait until a matching input device is visible; Ctrl+C remains cancellable."""
 
+    pa = create_pyaudio()
     print(
         f"Waiting for input device {device_name!r} to appear "
         f"under {HOST_API_LABELS[canonical_host_api(requested_host_api)]}...",
         flush=True,
     )
     last_error = ""
-    while True:
-        try:
-            selection = select_device(
-                pa=pa,
-                requested_host_api=requested_host_api,
-                device_name=device_name,
-                device_index=None,
+    try:
+        while True:
+            try:
+                selection = select_device(
+                    pa=pa,
+                    requested_host_api=requested_host_api,
+                    device_name=device_name,
+                    device_index=None,
+                )
+            except RecorderError as exc:
+                message = str(exc)
+                if message != last_error:
+                    print(f"Still waiting: {message}", flush=True)
+                    last_error = message
+                time.sleep(DEVICE_WAIT_POLL_INTERVAL_SECONDS)
+                # Recreate PortAudio so hot-plugged devices are visible on
+                # backends that cache the device list for a PyAudio instance.
+                pa.terminate()
+                pa = create_pyaudio()
+                continue
+            print(
+                f"Device appeared: index={selection.index}, name={selection.name!r}, "
+                f"host_api={selection.host_api_name}.",
+                flush=True,
             )
-        except RecorderError as exc:
-            message = str(exc)
-            if message != last_error:
-                print(f"Still waiting: {message}", flush=True)
-                last_error = message
-            time.sleep(DEVICE_WAIT_POLL_INTERVAL_SECONDS)
-            continue
-        print(
-            f"Device appeared: index={selection.index}, name={selection.name!r}, "
-            f"host_api={selection.host_api_name}.",
-            flush=True,
-        )
-        return selection
+            return selection
+    finally:
+        pa.terminate()
 
 
 def build_output_path(output: Optional[str], output_dir: str, started_at: datetime) -> Path:
@@ -662,8 +669,8 @@ def run(args: argparse.Namespace) -> int:
 
         requested_host_api = resolve_host_api(args)
         if args.wait_device_name:
+            pa.terminate()
             wait_for_device(
-                pa=pa,
                 requested_host_api=requested_host_api,
                 device_name=args.wait_device_name,
             )
@@ -675,6 +682,7 @@ def run(args: argparse.Namespace) -> int:
                 time.sleep(args.device_appear_delay)
             if not args.device_name:
                 args.device_name = args.wait_device_name
+            pa = create_pyaudio()
         audio_format = get_audio_format(args.bit_depth)
         selection = select_device(
             pa=pa,

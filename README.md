@@ -2365,7 +2365,7 @@ Then restart Codex.
 
 ### 等待声卡出现后录音
 
-使用 `--wait-device-name` 时，脚本每 `0.2` 秒检测一次指定名称（支持标准化后的精确匹配或子串匹配）的输入设备。设备出现后先等待 `--device-appear-delay` 秒，再执行原有设备校验和录音流程；延迟默认是 `0` 秒。等待期间可以按 `Ctrl+C` 安全退出。
+使用 `--wait-device-name` 时，脚本每 `0.2` 秒检测一次指定名称（支持标准化后的精确匹配或子串匹配）的输入设备，并在轮询过程中刷新 PortAudio 设备实例以识别热插拔。设备出现后先等待 `--device-appear-delay` 秒，再执行原有设备校验和录音流程；延迟默认是 `0` 秒。等待期间可以按 `Ctrl+C` 安全退出。
 
 ```powershell
 .\.venv\Scripts\python.exe .\src\OmniPickup.py `

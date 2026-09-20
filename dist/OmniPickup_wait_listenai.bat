@@ -17,8 +17,8 @@ if not exist "%OMNI_SCRIPT%" (
 rem Wait for the ListenAI microphone, delay 5 seconds, then record continuously.
 "%OMNI_PYTHON%" -X utf8 "%OMNI_SCRIPT%" ^
   --host-api wasapi ^
-  --wait-device-name "麦克风 (ListenAI Audio)" ^
-  --device-appear-delay 5 ^
+  --wait-device-name "麦克风 (UAC Audio)" ^
+  --device-appear-delay 0 ^
   --sample-rate 16000 ^
   --channels 8 ^
   --bit-depth 16 ^

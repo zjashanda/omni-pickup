@@ -141,3 +141,10 @@
 - [x] 更新 `SKILL.md`，记录直接调用方式和持续录音行为。
 - [x] 使用 `cmd /c call dist\\OmniPickup_wait_listenai.bat --validate-only` 验证 BAT；检测到当前声卡后等待 5 秒并校验成功。
 - [x] 已同步 BAT、文档和计划到 GitHub。
+
+## 当前用户反馈：UAC Audio 热插拔未触发录音
+- [x] 复现初始问题：长时间运行的旧 PyAudio 实例未刷新热插拔后的 `麦克风 (UAC Audio)`。
+- [x] 修复等待轮询：每次未匹配时重建 PyAudio 实例，刷新 PortAudio 设备列表；出现设备后再创建实例执行校验/录音。
+- [x] 当前机器已枚举到 `麦克风 (UAC Audio)`：WASAPI、8 输入通道、16 kHz。
+- [x] 源码验证通过；EXE 首轮刷新后检测到 UAC Audio 并完成格式校验。
+- [x] 重新打包并同步修复到 GitHub。
